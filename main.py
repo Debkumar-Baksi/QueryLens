@@ -1,8 +1,6 @@
 # main.py
 # ======================================
 # Project: QueryLens (LLM File Q&A)
-# Dependencies (install with pip):
-# pip install gradio transformers sentence-transformers pypdf python-docx pandas
 # ======================================
 
 import gradio as gr
@@ -76,7 +74,7 @@ def answer_query(query, chunks, embeddings, top_k=3):
     context = " ".join([chunks[i] for i in top_idx])
     
     prompt = f"Answer the following question using the context:\n\nContext: {context}\n\nQuestion: {query}\nAnswer:"
-    result = qa_model(prompt, max_length=200)[0]['generated_text']
+    result = qa_model(prompt, max_new_tokens=200)[0]['generated_text']
     return result
 
 # -----------------------------
@@ -101,7 +99,17 @@ iface = gr.Interface(
     description="Upload a file (PDF, CSV, TXT, DOCX) and ask questions about its content."
 )
 
+# -----------------------------
+# Run app (Render-friendly)
+# -----------------------------
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 7860))
-    iface.launch(server_name="0.0.0.0", server_port=port)
+    iface.launch(
+        server_name="0.0.0.0",
+        server_port=port,
+        show_error=True,
+        inbrowser=False,
+        share=False,
+        prevent_thread_lock=True
+    )
